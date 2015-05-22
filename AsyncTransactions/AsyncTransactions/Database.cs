@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.Serialization.Json;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Newtonsoft.Json;
@@ -13,8 +8,8 @@ namespace AsyncTransactions
 {
     public class Database
     {
-        List<object> stored = new List<object>();
-        private DatabaseStore store;
+        readonly List<object> stored = new List<object>();
+        private readonly DatabaseStore store;
 
         public Database(string storePath)
         {
@@ -65,62 +60,5 @@ namespace AsyncTransactions
         {
             store.Close();
         }
-    }
-
-    public class SaveResourceManager : IEnlistmentNotification
-    {
-        private readonly Func<Task> operation;
-
-        public SaveResourceManager(Func<Task> operation)
-        {
-            this.operation = operation;
-        }
-
-        public void Prepare(PreparingEnlistment preparingEnlistment)
-        {
-            preparingEnlistment.Prepared();
-        }
-
-        public void Commit(Enlistment enlistment)
-        {
-            operation().Wait();
-            enlistment.Done();
-        }
-
-        public void Rollback(Enlistment enlistment)
-        {
-            enlistment.Done();
-        }
-
-        public void InDoubt(Enlistment enlistment)
-        {
-            enlistment.Done();
-        }
-    }
-
-    public class DatabaseStore
-    {
-        private FileStream fileStore;
-
-        public DatabaseStore(string storePath)
-        {
-            fileStore = File.OpenWrite(storePath);
-        }
-
-        public async Task AppendAsync(Stream stream, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            await stream.CopyToAsync(fileStore, 4096, cancellationToken);
-            await fileStore.FlushAsync(cancellationToken);
-        }
-
-        public void Close()
-        {
-            fileStore.Close();
-        }
-    }
-
-    internal class ResourceManager
-    {
-        
     }
 }
