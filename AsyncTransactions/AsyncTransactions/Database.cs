@@ -34,13 +34,18 @@ namespace AsyncTransactions
                 return;
             }
 
-            await Task.FromResult(transaction.EnlistVolatile(new SaveResourceManager(SaveInternalAsync), EnlistmentOptions.None));
+            // await Task.FromResult(transaction.EnlistVolatile(new SynchronousSaveResourceManager(SaveInternalAsync), EnlistmentOptions.None));
+
+            await Task.FromResult(transaction.EnlistVolatile(new DangerousResourceManager(SaveInternalAsync), EnlistmentOptions.None));
+
+            // await Task.FromResult(transaction.EnlistVolatile(new AsynchronousBlockingResourceManager(SaveInternalAsync), EnlistmentOptions.None));
         }
 
         private async Task SaveInternalAsync()
         {
             foreach (var o in stored)
             {
+                throw new DirectoryNotFoundException();
                 using(var stream = new MemoryStream())
                 using (var writer = new JsonTextWriter(new StreamWriter(stream)))
                 {
