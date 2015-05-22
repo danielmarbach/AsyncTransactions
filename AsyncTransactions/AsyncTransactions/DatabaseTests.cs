@@ -81,7 +81,7 @@ namespace AsyncTransactions
             Approvals.VerifyFile("StoreAsyncSupportsAmbientTransactionRollback.received.txt");
         }
 
-        private class Customer
+        internal class Customer
         {
             public string Name { get; set; }
         }

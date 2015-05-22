@@ -71,6 +71,8 @@
     <Compile Include="DatabaseTests.cs" />
     <Compile Include="Infrastructure\DanielMarbach.cs" />
     <Compile Include="Infrastructure\GiveAway.cs" />
+    <Compile Include="Infrastructure\Slide.cs" />
+    <Compile Include="Infrastructure\SlideExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Script.cs" />
     <Compile Include="SynchronousSaveResourceManager.cs" />
