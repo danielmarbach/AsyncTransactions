@@ -45,7 +45,7 @@ namespace AsyncTransactions
         {
             foreach (var o in stored)
             {
-                throw new DirectoryNotFoundException();
+                // throw new DirectoryNotFoundException();
                 using(var stream = new MemoryStream())
                 using (var writer = new JsonTextWriter(new StreamWriter(stream)))
                 {
