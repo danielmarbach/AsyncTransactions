@@ -21,6 +21,7 @@ namespace AsyncTransactions
         public void Commit(Enlistment enlistment)
         {
             operation().Wait();
+
             enlistment.Done();
         }
 
