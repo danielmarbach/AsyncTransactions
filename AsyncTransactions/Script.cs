@@ -22,9 +22,9 @@ namespace AsyncTransactions
         }
 
         [Test]
-        public async Task TransactionScope()
+        public async Task TransactionScopeIntro()
         {
-            var slide = new Slide(title: "Transaction Scope");
+            var slide = new Slide(title: "Transaction Scope Intro");
             await slide
                 .BulletPoint("System.Transactions.TransactionScope")
                 .BulletPoint("Implicit programing model / Ambient Transactions")
@@ -37,6 +37,8 @@ namespace AsyncTransactions
                     {
                         Assert.NotNull(Transaction.Current);
 
+                        SomeMethodInTheCallStack();
+
                         tx.Complete();
                     }
 
@@ -44,6 +46,64 @@ namespace AsyncTransactions
                 })
 
                 .BulletPoint("Only works with async/await with .NET 4.5.1");
+        }
+
+        private static void SomeMethodInTheCallStack()
+        {
+            Assert.NotNull(Transaction.Current);
+        }
+
+        [Test]
+        public async Task TransactionScopeAsync()
+        {
+            var slide = new Slide(title: "Transaction Scope Async");
+            await slide
+
+                .Sample(async () =>
+                {
+                    Assert.Null(Transaction.Current);
+
+                    using (var tx = new TransactionScope())
+                    {
+                        Assert.NotNull(Transaction.Current);
+
+                        await SomeMethodInTheCallStackAsync().ConfigureAwait(false);
+
+                        tx.Complete();
+                    }
+
+                    Assert.Null(Transaction.Current);
+                });
+        }
+
+        [Test]
+        public async Task TransactionScopeAsyncProper()
+        {
+            var slide = new Slide(title: "Transaction Scope Async");
+            await slide
+
+                .Sample(async () =>
+                {
+                    Assert.Null(Transaction.Current);
+
+                    using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                    {
+                        Assert.NotNull(Transaction.Current);
+
+                        await SomeMethodInTheCallStackAsync().ConfigureAwait(false);
+
+                        tx.Complete();
+                    }
+
+                    Assert.Null(Transaction.Current);
+                });
+        }
+
+        private static async Task SomeMethodInTheCallStackAsync()
+        {
+            await Task.Delay(500).ConfigureAwait(false);
+
+            Assert.NotNull(Transaction.Current);
         }
 
         [Test]
