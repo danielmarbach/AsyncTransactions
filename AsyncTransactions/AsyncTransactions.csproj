@@ -65,10 +65,10 @@
     <Compile Include="AsynchronousBlockingResourceManager.cs" />
     <Compile Include="AsyncPump.cs" />
     <Compile Include="BaseResourceManager.cs" />
+    <Compile Include="Customer.cs" />
     <Compile Include="DangerousResourceManager.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="DatabaseStore.cs" />
-    <Compile Include="DatabaseTests.cs" />
     <Compile Include="Infrastructure\DanielMarbach.cs" />
     <Compile Include="Infrastructure\GiveAway.cs" />
     <Compile Include="Infrastructure\Slide.cs" />

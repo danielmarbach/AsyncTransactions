@@ -1,6 +1,8 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Transactions;
+using ApprovalTests;
 using NUnit.Framework;
 
 namespace AsyncTransactions
@@ -107,9 +109,10 @@ namespace AsyncTransactions
         }
 
         [Test]
-        public async Task ShowHowAwesome()
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public async Task StoreAsync()
         {
-            var slide = new Slide(title: "Transaction Scope");
+            var slide = new Slide(title: "Store Async");
             await slide
                 .Sample(async () =>
                 {
@@ -117,12 +120,69 @@ namespace AsyncTransactions
 
                     for (int i = 0; i < 10; i++)
                     {
-                        database.Store(new DatabaseTests.Customer {Name = "Daniel" + i});
+                        database.Store(new Customer { Name = "Daniel" + i });
                     }
 
                     await database.SaveAsync();
 
                     database.Close();
+
+                    // Doesn't seem to work properly, bug in approval tests?
+                    // Approvals.VerifyFile("StoreAsync.received.txt");
+                });
+        }
+
+        [Test]
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public async Task StoreAsyncSupportsAmbientTransactionComplete()
+        {
+            var slide = new Slide(title: "Store Async supports ambient transactions - complete");
+            await slide
+                .Sample(async () =>
+                {
+                    var database = new Database("StoreAsyncSupportsAmbientTransactionComplete.received.txt");
+
+                    for (int i = 0; i < 10; i++)
+                    {
+                        database.Store(new Customer {Name = "Daniel" + i});
+                    }
+
+                    using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                    {
+                        await database.SaveAsync();
+
+                        tx.Complete();
+                    }
+
+                    database.Close();
+
+                    Approvals.VerifyFile("StoreAsyncSupportsAmbientTransactionComplete.received.txt");
+                });
+        }
+
+        [Test]
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public async Task StoreAsyncSupportsAmbientTransactionRollback()
+        {
+            var slide = new Slide(title: "Store Async supports ambient transactions - rollback");
+            await slide
+                .Sample(async () =>
+                {
+                    var database = new Database("StoreAsyncSupportsAmbientTransactionRollback.received.txt");
+
+                    for (int i = 0; i < 10; i++)
+                    {
+                        database.Store(new Customer {Name = "Daniel" + i});
+                    }
+
+                    using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                    {
+                        await database.SaveAsync();
+                    }
+
+                    database.Close();
+
+                    Approvals.VerifyFile("StoreAsyncSupportsAmbientTransactionRollback.received.txt");
                 });
         }
 
