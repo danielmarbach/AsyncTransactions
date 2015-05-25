@@ -25,12 +25,16 @@ namespace AsyncTransactions
         }
 
         [Test]
-        public async Task TransactionScopeIntro()
+        public async Task TransactionScopeIntroOrRefresh()
         {
             var slide = new Slide(title: "Transaction Scope Intro");
             await slide
                 .BulletPoint("System.Transactions.TransactionScope")
                 .BulletPoint("Implicit programing model / Ambient Transactions")
+                .BulletPoint("Only works with async/await in .NET 4.5.1")
+                .BulletPoint("Limited usefulness in cloud scenarios - No support for distributed tx")
+                .BulletPoint("Automatically upgrades a local transaction to a distributed transaction")
+                .BulletPoint("Ease of coding - If you prefer implicit over explicit")
 
                 .Sample(() =>
                 {
@@ -46,9 +50,7 @@ namespace AsyncTransactions
                     }
 
                     Assert.Null(Transaction.Current);
-                })
-
-                .BulletPoint("Only works with async/await in .NET 4.5.1");
+                });
         }
 
         private static void SomeMethodInTheCallStack()
@@ -176,10 +178,24 @@ namespace AsyncTransactions
                     using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                     {
                         await database.SaveAsync().ConfigureAwait(false);
+
+                        // Rollback
                     }
 
                     database.Close();
                 });
+        }
+
+        [Test]
+        public async Task WhatDidWeJustLearn()
+        {
+            var slide = new Slide(title: "What did we just learn?");
+            await slide
+                .BulletPoint("Async void is evil! Use carefully.")
+                .BulletPoint("In a cloud first and async world try to avoid TransactionScope")
+                .BulletPoint("Modern frameworks like EF6 (and higher) support own transactions")
+                .BulletPoint("Use AsyncPump if you need TxScope and enlist your own stuff.")
+                .BulletPoint("Write an async enabled library? ConfigureAwait(false) is your friend");
         }
 
         [Test]
