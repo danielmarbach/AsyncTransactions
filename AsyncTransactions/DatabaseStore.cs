@@ -6,7 +6,7 @@ namespace AsyncTransactions
 {
     public class DatabaseStore
     {
-        private FileStream fileStore;
+        private readonly FileStream fileStore;
 
         public DatabaseStore(string storePath)
         {
