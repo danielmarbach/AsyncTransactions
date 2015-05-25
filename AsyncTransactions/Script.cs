@@ -115,6 +115,8 @@ namespace AsyncTransactions
         {
             var slide = new Slide(title: "Store Async");
             await slide
+                .BulletPoint("OMG! You just rolled your own NoSQL database, right?")
+
                 .Sample(async () =>
                 {
                     var database = new Database("StoreAsync.received.txt");
