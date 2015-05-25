@@ -20,7 +20,8 @@ namespace AsyncTransactions
                 .and
                 .WorkingFor("Particular Software").TheFolksBehind("NServiceBus");
 
-            throw new ArgumentOutOfRangeException(nameof(EntityFramework), "Sorry this presentation is not about Entity Framework");
+            throw new ArgumentOutOfRangeException(nameof(EntityFramework), 
+                "Sorry this presentation is not about Entity Framework");
         }
 
         [Test]
@@ -47,7 +48,7 @@ namespace AsyncTransactions
                     Assert.Null(Transaction.Current);
                 })
 
-                .BulletPoint("Only works with async/await with .NET 4.5.1");
+                .BulletPoint("Only works with async/await in .NET 4.5.1");
         }
 
         private static void SomeMethodInTheCallStack()
@@ -123,12 +124,9 @@ namespace AsyncTransactions
                         database.Store(new Customer { Name = "Daniel" + i });
                     }
 
-                    await database.SaveAsync();
+                    await database.SaveAsync().ConfigureAwait(false);
 
                     database.Close();
-
-                    // Doesn't seem to work properly, bug in approval tests?
-                    // Approvals.VerifyFile("StoreAsync.received.txt");
                 });
         }
 
@@ -149,14 +147,12 @@ namespace AsyncTransactions
 
                     using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                     {
-                        await database.SaveAsync();
+                        await database.SaveAsync().ConfigureAwait(false);
 
                         tx.Complete();
                     }
 
                     database.Close();
-
-                    Approvals.VerifyFile("StoreAsyncSupportsAmbientTransactionComplete.received.txt");
                 });
         }
 
@@ -177,12 +173,10 @@ namespace AsyncTransactions
 
                     using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                     {
-                        await database.SaveAsync();
+                        await database.SaveAsync().ConfigureAwait(false);
                     }
 
                     database.Close();
-
-                    Approvals.VerifyFile("StoreAsyncSupportsAmbientTransactionRollback.received.txt");
                 });
         }
 
@@ -191,6 +185,21 @@ namespace AsyncTransactions
         {
             var giveAway = new GiveAway();
             await giveAway.WorthThousandDollars();
+        }
+
+        [Test]
+        public async Task Links()
+        {
+            var slide = new Slide(title: "Useful links");
+            await slide
+                .BulletPoint("Six Essential Tips for Async - " +
+                             "http://channel9.msdn.com/Series/Three-Essential-Tips-for-Async")
+                .BulletPoint("Best Practices in Asynchronous Programming" +
+                             "https://msdn.microsoft.com/en-us/magazine/jj991977.aspx")
+                .BulletPoint("Participating in TransactionScopes and Async/Await" +
+                             "http://www.planetgeek.ch/2014/12/07/participating-in-transactionscopes-and-asyncawait-introduction/")
+                .BulletPoint("Working with Transactions (EF6 Onwards)" +
+                             "https://msdn.microsoft.com/en-us/data/dn456843.aspx");
         }
     }
 }
