@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -10,10 +11,31 @@ namespace AsyncTransactions
     {
         readonly List<object> stored = new List<object>();
         private readonly DatabaseStore store;
+        private readonly Func<Transaction, Task> saveUnderTxAsync;
+        private readonly DatabaseMode mode;
 
-        public Database(string storePath)
+        public Database(string storePath, DatabaseMode mode = DatabaseMode.Synchronous)
         {
             store = new DatabaseStore(storePath);
+            this.mode = mode;
+
+            switch (mode)
+            {
+                case DatabaseMode.Synchronous:
+                    saveUnderTxAsync = tx => 
+                    Task.FromResult(tx.EnlistVolatile(new SynchronousSaveResourceManager(SaveInternalAsync), EnlistmentOptions.None));
+                    break;
+                case DatabaseMode.Dangerous:
+                    saveUnderTxAsync = tx => 
+                    Task.FromResult(tx.EnlistVolatile(new DangerousResourceManager(SaveInternalAsync), EnlistmentOptions.None));
+                    break;
+                case DatabaseMode.AsyncBlocking:
+                    saveUnderTxAsync = tx => 
+                    Task.FromResult(tx.EnlistVolatile(new AsynchronousBlockingResourceManager(SaveInternalAsync), EnlistmentOptions.None));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         public void Store(object entity)
@@ -34,18 +56,16 @@ namespace AsyncTransactions
                 return;
             }
 
-            // await Task.FromResult(transaction.EnlistVolatile(new SynchronousSaveResourceManager(SaveInternalAsync), EnlistmentOptions.None));
-
-            await Task.FromResult(transaction.EnlistVolatile(new DangerousResourceManager(SaveInternalAsync), EnlistmentOptions.None));
-
-            // await Task.FromResult(transaction.EnlistVolatile(new AsynchronousBlockingResourceManager(SaveInternalAsync), EnlistmentOptions.None));
+            await saveUnderTxAsync(transaction);
         }
 
         private async Task SaveInternalAsync()
         {
             foreach (var o in stored)
             {
-                // throw new DirectoryNotFoundException();
+                if(this.mode == DatabaseMode.Dangerous)
+                    throw new DirectoryNotFoundException();
+
                 using(var stream = new MemoryStream())
                 using (var writer = new JsonTextWriter(new StreamWriter(stream)))
                 {
