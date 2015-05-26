@@ -29,3 +29,18 @@ Specifies that transaction flow across thread continuations is enabled.
 the default is `Suppress` (Non breaking changes you know!)
 
 #### Store Async and THE database
+For the sake of this presentation let's assume we are building our own NoSQL database. Side note: Never, ever do that unless you really know what you are doing! The database needs to store objects in memory and as soon as `SaveAsync` is called it should write it into the underlying storage. Let us briefly explore the code.
+
+#### Store Async and TransactionScope
+Now suppose we want to add ambient transaction support to our NoSQL database. How could we do that? Well nothing simpler than that. We need to write an `IEnlistmentNotification` implementation which we enlist volatile (meaning it cannot recover from failures in case when something unforeseen happened to the resource manager). I don't want to see heads exploding. Therefore I'm not diving more into resource manager, single phase and multi phase commits...
+
+Let us briefly explore the code.
+
+Note: The AsyncPump implementation could still be tweaked. For example if we know that in the majority of case we invoke multiple asynchronous methods we could extend the pump to support an enumerable of tasks. If course this change would also affect the resource manager implementations.
+
+#### What did we just learn
+* Async void is evil! use it carefully.
+* In a cloud first and async world (no pun intended) try to avoid TransactionScope
+* Modern frameworks like Entity Framework 6 and higher support their own transactions which is the recommended way and actually works properly with async.
+* Use the AsyncPump if you need `TransactionScope` support in order to enlist your own transactional stuff asynchronously.
+* If you are writing an async enabled library then `ConfigureAwait(false)` is your friend
