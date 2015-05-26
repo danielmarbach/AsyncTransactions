@@ -10,7 +10,14 @@ namespace AsyncTransactions
     [TestFixture]
     public class Script
     {
+        [SetUp]
+        public void SetUp()
+        {
+            Transaction.Current = null;
+        }
+
         [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         [TestCase("EntityFramework")]
         public void TheStart(string EntityFramework = null)
         {
@@ -59,6 +66,7 @@ namespace AsyncTransactions
         }
 
         [Test]
+        [ExpectedException(typeof(InvalidOperationException))] // Normally never use those
         public async Task TransactionScopeAsync()
         {
             var slide = new Slide(title: "Transaction Scope Async");
@@ -199,6 +207,7 @@ namespace AsyncTransactions
         }
 
         [Test]
+        [Explicit]
         public async Task TheEnd()
         {
             var giveAway = new GiveAway();
