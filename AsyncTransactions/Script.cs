@@ -228,7 +228,9 @@ namespace AsyncTransactions
                 .BulletPoint("Participating in TransactionScopes and Async/Await" +
                              "http://www.planetgeek.ch/2014/12/07/participating-in-transactionscopes-and-asyncawait-introduction/")
                 .BulletPoint("Working with Transactions (EF6 Onwards)" +
-                             "https://msdn.microsoft.com/en-us/data/dn456843.aspx");
+                             "https://msdn.microsoft.com/en-us/data/dn456843.aspx")
+                .BulletPoint("Enlisting Resources as Participants in a Transaction" +
+                             "https://msdn.microsoft.com/en-us/library/ms172153.aspx");
         }
 
         private static void StoringTenSwissGuysInTheDatabase(Database database)
