@@ -121,7 +121,10 @@ namespace AsyncTransactions
 
         [Test]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public async Task StoreAsync()
+        [TestCase(DatabaseMode.Synchronous)]
+        [TestCase(DatabaseMode.Dangerous)]
+        [TestCase(DatabaseMode.AsyncBlocking)]
+        public async Task StoreAsync(DatabaseMode mode)
         {
             var slide = new Slide(title: "Store Async");
             await slide
@@ -129,33 +132,33 @@ namespace AsyncTransactions
 
                 .Sample(async () =>
                 {
-                    var database = new Database("StoreAsync.received.txt");
+                    var database = new Database("StoreAsync.received.txt", mode);
+                    StoringTenSwissGuysInTheDatabase(database);
 
-                    for (int i = 0; i < 10; i++)
+                    try
                     {
-                        database.Store(new Customer { Name = "Daniel" + i });
+                        await database.SaveAsync().ConfigureAwait(false);
                     }
-
-                    await database.SaveAsync().ConfigureAwait(false);
-
-                    database.Close();
+                    finally
+                    {
+                        database.Close();
+                    }
                 });
         }
 
         [Test]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public async Task StoreAsyncSupportsAmbientTransactionComplete()
+        [TestCase(DatabaseMode.Synchronous)]
+        [TestCase(DatabaseMode.Dangerous)]
+        [TestCase(DatabaseMode.AsyncBlocking)]
+        public async Task StoreAsyncSupportsAmbientTransactionComplete(DatabaseMode mode)
         {
             var slide = new Slide(title: "Store Async supports ambient transactions - complete");
             await slide
                 .Sample(async () =>
                 {
-                    var database = new Database("StoreAsyncSupportsAmbientTransactionComplete.received.txt");
-
-                    for (int i = 0; i < 10; i++)
-                    {
-                        database.Store(new Customer {Name = "Daniel" + i});
-                    }
+                    var database = new Database("StoreAsyncSupportsAmbientTransactionComplete.received.txt", mode);
+                    StoringTenSwissGuysInTheDatabase(database);
 
                     using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                     {
@@ -170,18 +173,17 @@ namespace AsyncTransactions
 
         [Test]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public async Task StoreAsyncSupportsAmbientTransactionRollback()
+        [TestCase(DatabaseMode.Synchronous)]
+        [TestCase(DatabaseMode.Dangerous)]
+        [TestCase(DatabaseMode.AsyncBlocking)]
+        public async Task StoreAsyncSupportsAmbientTransactionRollback(DatabaseMode mode)
         {
             var slide = new Slide(title: "Store Async supports ambient transactions - rollback");
             await slide
                 .Sample(async () =>
                 {
-                    var database = new Database("StoreAsyncSupportsAmbientTransactionRollback.received.txt");
-
-                    for (int i = 0; i < 10; i++)
-                    {
-                        database.Store(new Customer {Name = "Daniel" + i});
-                    }
+                    var database = new Database("StoreAsyncSupportsAmbientTransactionRollback.received.txt", mode);
+                    StoringTenSwissGuysInTheDatabase(database);
 
                     using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                     {
@@ -227,6 +229,14 @@ namespace AsyncTransactions
                              "http://www.planetgeek.ch/2014/12/07/participating-in-transactionscopes-and-asyncawait-introduction/")
                 .BulletPoint("Working with Transactions (EF6 Onwards)" +
                              "https://msdn.microsoft.com/en-us/data/dn456843.aspx");
+        }
+
+        private static void StoringTenSwissGuysInTheDatabase(Database database)
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                database.Store(new Customer {Name = "Daniel" + i});
+            }
         }
     }
 }
