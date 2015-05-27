@@ -53,6 +53,7 @@ We are now in a better situation regarding asynchronous execution and exception 
 
 #### What did we just learn
 * Async void is evil! use it carefully.
+* Async all the way.
 * In a cloud first and async world (no pun intended) try to avoid TransactionScope
 * Modern frameworks like Entity Framework 6 and higher support their own transactions which is the recommended way and actually works properly with async.
 * Use the AsyncPump if you need `TransactionScope` support in order to enlist your own transactional stuff asynchronously.

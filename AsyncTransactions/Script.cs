@@ -233,6 +233,7 @@ namespace AsyncTransactions
             var slide = new Slide(title: "What did we just learn?");
             await slide
                 .BulletPoint("Async void is evil! Use carefully.")
+                .BulletPoint("Async all the way.")
                 .BulletPoint("In a cloud first and async world try to avoid TransactionScope")
                 .BulletPoint("Modern frameworks like EF6 (and higher) support own transactions")
                 .BulletPoint("Use AsyncPump if you need TxScope and enlist your own stuff.")
