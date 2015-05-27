@@ -36,7 +36,20 @@ Now suppose we want to add ambient transaction support to our NoSQL database. Ho
 
 Let us briefly explore the code.
 
-Note: The AsyncPump implementation could still be tweaked. For example if we know that in the majority of case we invoke multiple asynchronous methods we could extend the pump to support an enumerable of tasks. If course this change would also affect the resource manager implementations.
+##### Synchronous way
+We are voilating an important best practice of async/await called Async all the way. “Async all the way” means that you shouldn’t mix synchronous and asynchronous code without carefully considering the consequences. In particular, it’s usually a bad idea to block on async code by calling `Task.Wait` or `Task.Result`. You risk running into deadlocks. Google for “Why does my partially async code deadlock?”, by far the most-asked question by newcomers to async.
+
+The root cause of this deadlock is due to the way await handles contexts. By default, when an incomplete Task is awaited, the current “context” is captured and used to resume the method when the Task completes. This “context” is the current `SynchronizationContext` unless it’s null, in which case it’s the current `TaskScheduler`. When the await completes, it attempts to execute the remainder of the async method within the captured context. But that context already has a thread in it, which is (synchronously) waiting for the async method to complete. They’re each waiting for the other, causing a deadlock.
+
+Note: The `AsyncPump` implementation could still be tweaked. For example if we know that in the majority of case we invoke multiple asynchronous methods we could extend the pump to support an enumerable of tasks. If course this change would also affect the resource manager implementations.
+
+##### Asynchronous way
+Then let's just await the operation inside the resource manager, right? Noooooooooo! There is a great rule of thumb: "Avoid async void" except in event handlers. By making the resource manager commit `async void` we completely lost control in case of exception. If the `SaveInternalAsync` method throws an exception that exception is never raised to the calling thread and therefore we risk losing important business data.
+
+##### Asynchronous blocking way
+So what can we do then if blocking and await is not an option? We can write an asynchronous pump which allows us to bridge the `void` world over the the asynchronous world. The asynchronous pump captures the currently executing `SynchronizationContex` and replaces it with a `SingleThreadedSynchronizationContext`. Then the task is asynchronously executed with a continuation which marks the `SingleThreadedSynchronizationContext` as completed. The pump blocks until all asynchronously posted callbacks are executed on the `SynchronizationContext`.
+
+We are now in a better situation regarding asynchronous execution and exception marshaling but we are still blocking the calling thread and essentially losing all the benefits of async/await.
 
 #### What did we just learn
 * Async void is evil! use it carefully.
