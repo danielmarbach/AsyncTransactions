@@ -63,7 +63,7 @@ namespace AsyncTransactions
         {
             foreach (var o in stored)
             {
-                if(this.mode == DatabaseMode.Dangerous)
+                if(mode == DatabaseMode.Dangerous)
                     throw new DirectoryNotFoundException();
 
                 using(var stream = new MemoryStream())
@@ -79,6 +79,7 @@ namespace AsyncTransactions
                     writer.Close();
                 }
             }
+            stored.Clear();
         }
 
         public void Close()
