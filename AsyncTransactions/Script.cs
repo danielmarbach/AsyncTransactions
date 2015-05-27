@@ -7,6 +7,10 @@ using NUnit.Framework;
 
 namespace AsyncTransactions
 {
+    /// <summary>
+    /// Contains a lot of white space. Optimized for Consolas 14 pt 
+    /// and Full HD resolution
+    /// </summary>
     [TestFixture]
     public class Script
     {
@@ -15,6 +19,9 @@ namespace AsyncTransactions
         {
             Transaction.Current = null;
         }
+
+
+
 
         [Test]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
@@ -31,6 +38,12 @@ namespace AsyncTransactions
                 "Sorry this presentation is not about Entity Framework");
         }
 
+
+
+
+
+
+
         [Test]
         public async Task TransactionScopeIntroOrRefresh()
         {
@@ -39,9 +52,20 @@ namespace AsyncTransactions
                 .BulletPoint("System.Transactions.TransactionScope")
                 .BulletPoint("Implicit programing model / Ambient Transactions")
                 .BulletPoint("Only works with async/await in .NET 4.5.1")
-                .BulletPoint("Limited usefulness in cloud scenarios - No support for distributed tx")
-                .BulletPoint("Automatically upgrades a local transaction to a distributed transaction")
+                .BulletPoint("Limited usefulness in cloud scenarios")
+                .BulletPoint("Upgrades a local transaction to a distributed transaction")
                 .BulletPoint("Ease of coding - If you prefer implicit over explicit")
+
+
+
+
+
+
+
+
+
+
+
 
                 .Sample(() =>
                 {
@@ -65,6 +89,8 @@ namespace AsyncTransactions
             Assert.NotNull(Transaction.Current);
         }
 
+
+
         [Test]
         [ExpectedException(typeof(InvalidOperationException))] // Normally never use those
         public async Task TransactionScopeAsync()
@@ -80,7 +106,8 @@ namespace AsyncTransactions
                     {
                         Assert.NotNull(Transaction.Current);
 
-                        await SomeMethodInTheCallStackAsync().ConfigureAwait(false);
+                        await SomeMethodInTheCallStackAsync()
+                            .ConfigureAwait(false);
 
                         tx.Complete();
                     }
@@ -94,16 +121,17 @@ namespace AsyncTransactions
         {
             var slide = new Slide(title: "Transaction Scope Async");
             await slide
-
                 .Sample(async () =>
                 {
                     Assert.Null(Transaction.Current);
 
-                    using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                    using (var tx = 
+                        new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                     {
                         Assert.NotNull(Transaction.Current);
 
-                        await SomeMethodInTheCallStackAsync().ConfigureAwait(false);
+                        await SomeMethodInTheCallStackAsync()
+                            .ConfigureAwait(false);
 
                         tx.Complete();
                     }
@@ -196,6 +224,9 @@ namespace AsyncTransactions
                 });
         }
 
+
+
+
         [Test]
         public async Task WhatDidWeJustLearn()
         {
@@ -208,6 +239,14 @@ namespace AsyncTransactions
                 .BulletPoint("Write an async enabled library? ConfigureAwait(false) is your friend");
         }
 
+
+
+
+
+
+
+
+
         [Test]
         [Explicit]
         public async Task TheEnd()
@@ -215,6 +254,12 @@ namespace AsyncTransactions
             var giveAway = new GiveAway();
             await giveAway.WorthThousandDollars();
         }
+
+
+
+
+
+
 
         [Test]
         public async Task Links()
