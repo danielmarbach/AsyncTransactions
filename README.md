@@ -44,3 +44,10 @@ Note: The AsyncPump implementation could still be tweaked. For example if we kno
 * Modern frameworks like Entity Framework 6 and higher support their own transactions which is the recommended way and actually works properly with async.
 * Use the AsyncPump if you need `TransactionScope` support in order to enlist your own transactional stuff asynchronously.
 * If you are writing an async enabled library then `ConfigureAwait(false)` is your friend
+
+#### Resources
+* [Six Essential Tips for Async](http://channel9.msdn.com/Series/Three-Essential-Tips-for-Async)
+* [Best Practices in Asynchronous Programming](https://msdn.microsoft.com/en-us/magazine/jj991977.aspx)
+* [Participating in TransactionScopes and Async/Await](http://www.planetgeek.ch/2014/12/07/participating-in-transactionscopes-and-asyncawait-introduction/)
+* [Working with Transactions (EF6 Onwards)](https://msdn.microsoft.com/en-us/data/dn456843.aspx)
+* [Enlisting Resources as Participants in a Transaction](https://msdn.microsoft.com/en-us/library/ms172153.aspx)
