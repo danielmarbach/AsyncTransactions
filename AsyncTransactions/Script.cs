@@ -266,6 +266,8 @@ namespace AsyncTransactions
         {
             var slide = new Slide(title: "Useful links");
             await slide
+                .BulletPoint("Sample Code including Transcript of what I explained" +
+                             "https://github.com/danielmarbach/AsyncTransactions")
                 .BulletPoint("Six Essential Tips for Async - " +
                              "http://channel9.msdn.com/Series/Three-Essential-Tips-for-Async")
                 .BulletPoint("Best Practices in Asynchronous Programming" +
